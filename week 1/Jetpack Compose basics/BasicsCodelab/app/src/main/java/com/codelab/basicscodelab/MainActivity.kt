@@ -3,6 +3,9 @@ package com.codelab.basicscodelab
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +34,7 @@ private fun MyApp(names: List<String> = listOf("World", "Compose")) {
 
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
-    if(shouldShowOnboarding) {
+    if (shouldShowOnboarding) {
         OnboardingScreen { shouldShowOnboarding = false }
     } else {
         Greetings()
@@ -39,7 +42,7 @@ private fun MyApp(names: List<String> = listOf("World", "Compose")) {
 }
 
 @Composable
-private fun Greetings(names: List<String> = List(1000) { "$it" } ) {
+private fun Greetings(names: List<String> = List(1000) { "$it" }) {
     LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
         items(items = names) { name ->
             Greeting(name = name)
@@ -49,8 +52,14 @@ private fun Greetings(names: List<String> = List(1000) { "$it" } ) {
 
 @Composable
 fun Greeting(name: String) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by remember { mutableStateOf(false) }
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
         color = MaterialTheme.colors.primary,
@@ -60,20 +69,20 @@ fun Greeting(name: String) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(extraPadding)
+                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
             ) {
                 Text(text = "Hello, ")
                 Text(text = name)
             }
-            OutlinedButton(onClick = { expanded.value = !expanded.value }) {
-                Text(if(expanded.value) "Show less" else "Show more")
+            OutlinedButton(onClick = { expanded= !expanded }) {
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
     }
 }
 
 @Composable
-fun OnboardingScreen(onContinueClicked:()->Unit) {
+fun OnboardingScreen(onContinueClicked: () -> Unit) {
 
     Surface {
         Column(
