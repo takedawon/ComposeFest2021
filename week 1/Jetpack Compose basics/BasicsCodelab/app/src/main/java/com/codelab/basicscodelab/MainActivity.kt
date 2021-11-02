@@ -36,12 +36,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MyApp(names: List<String> = listOf("World", "Compose")) {
+private fun MyApp() {
 
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     if (shouldShowOnboarding) {
-        OnboardingScreen { shouldShowOnboarding = false }
+        OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
     } else {
         Greetings()
     }
@@ -80,15 +80,17 @@ fun CardContent(name: String) {
                 )
             )
     ) {
-        Column(modifier = Modifier
-            .weight(1f)
-            .padding(12.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(12.dp)
+        ) {
             Text(text = "Hello, ")
             Text(
                 text = name,
                 style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.ExtraBold)
             )
-            if(expanded) {
+            if (expanded) {
                 Text(
                     text = ("Composem ipsum color sit lazy, " +
                             "padding theme elit, sed do bouncy. ").repeat(4),
